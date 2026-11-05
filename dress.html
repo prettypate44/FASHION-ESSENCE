@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FASHION ESSENCE BY ENAMARA</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><h1>FASHION ESSENCE BY ENAMARA</h1><p>Scan Result</p></header>
+<div class="container">
+  <div id="dressDetail">Loading dress...</div>
+  <button class="grey" onclick="window.location.href='index.html'">Back to Shop</button>
+</div>
+<script>
+const API = 'http://localhost:5000/api';
+const WHATSAPP_NUMBER = '2348000000000'; // CHANGE TO YOUR NUMBER
+
+async function load(){
+  // Get id from URL like dress.html?id=123
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  if(!id){ document.getElementById('dressDetail').innerHTML = 'No dress selected'; return; }
+
+  const res = await fetch(`${API}/dresses/${id}`);
+  const d = await res.json();
+  if(d.error){ document.getElementById('dressDetail').innerHTML = 'Dress not found'; return; }
+
+  let img = d.photo || `https://via.placeholder.com/400x220?text=${encodeURIComponent(d.name)}`;
+  let sizeOptions = d.sizes.map(s=>`<option value="${s.size}">Size ${s.size} - ${s.total-s.sold} remaining</option>`).join('');
+
+  document.getElementById('dressDetail').innerHTML = `
+    <div class="card">
+      <img src="${img}">
+      <h2>${d.name}</h2>
+      <p><b>Price: ₦${d.price.toLocaleString()}</b></p>
+      <p>${d.sizes.map(s=>`Size ${s.size}: <b>${s.total-s.sold} remaining</b><br>`).join('')}</p>
+      <label><b>Select Size</b></label>
+      <select id="selectedSize">${sizeOptions}</select>
+      <button class="green" onclick="orderWhatsApp('${d.name}', ${d.price})">Order on WhatsApp</button>
+      <p style="font-size:12px;color:#666;text-align:center">FASHION ESSENCE BY ENAMARA - Abuja</p>
+    </div>
+  `;
+  window.currentDress = d;
+}
+
+function orderWhatsApp(name, price){
+  let size = document.getElementById('selectedSize').value;
+  let msg = `Hello FASHION ESSENCE BY ENAMARA, I want to order ${name}, Size ${size}, ₦${price.toLocaleString()}`;
+  window.open(`https://wa.me/${WHATSAPP_23408033457117}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+load();
+</script>
+</body>
+</html>

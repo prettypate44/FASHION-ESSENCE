@@ -1,0 +1,16 @@
+{
+  "dresses": [
+    {
+      "id": 1,
+      "name": "Aso Oke Gown",
+      "price": 85000,
+      "photo": "",
+      "sizes": [
+        { "size": "10", "total": 2, "sold": 1 },
+        { "size": "12", "total": 2, "sold": 0 },
+        { "size": "14", "total": 1, "sold": 0 }
+      ]
+    }
+  ],
+  "sales": []
+}

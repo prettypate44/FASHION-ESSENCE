@@ -1,0 +1,23 @@
+{
+  "name": "fashion-essence",
+  "version": "1.0.0",
+  "description": "Inventory + QR Code System",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/prettypate44/.git"
+  },
+  "license": "ISC",
+  "author": "divine eberechi",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "npx nodemon server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.3.0",
+    "nodemon": "^3.1.14"
+  },
+  "devDependencies": {}
+}

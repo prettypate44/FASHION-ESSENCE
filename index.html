@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FASHION ESSENCE BY ENAMARA</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+<h1>FASHION ESSENCE BY ENAMARA</h1>
+<p>Inventory + QR Code System</p>
+<button onclick="localStorage.removeItem('admin_token'); location.reload();" style="background:white;color:#8B1E3F;width:auto;padding:6px 12px;margin-top:8px">Logout</button>
+<a href="login.html" style="color:white;font-size:13px">Staff Login</a>
+</header>
+
+
+<div class="container">
+  <div class="tabs">
+    <button onclick="showTab('shop')" id="tabShop" class="active">Shop</button>
+    <button onclick="showTab('admin')" id="tabAdmin">Admin</button>
+    <button onclick="showTab('dashboard')" id="tabDashboard">Dashboard</button>
+  </div>
+
+  <div id="view-shop"><input id="search" placeholder="Search dress..." oninput="renderShop()"><div id="shopList"></div></div>
+  <div id="view-admin" class="hidden">
+    <div class="card"><h3>Add Dress</h3>
+      <input id="dressName" placeholder="Dress Name">
+      <input id="dressPrice" type="number" placeholder="Price">
+      <input id="dressPhoto" placeholder="Photo Link">
+      <input class="sizeInput" placeholder="Size e.g. 10"><input class="qtyInput" type="number" placeholder="Qty e.g. 2">
+      <input class="sizeInput" placeholder="Size e.g. 12"><input class="qtyInput" type="number" placeholder="Qty e.g. 2">
+      <button onclick="addDress()">Add Dress</button>
+    </div>
+  </div>
+  <div id="view-dashboard" class="hidden"><div class="card" id="dashStats"></div></div>
+  <div id="view-detail" class="hidden"></div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
