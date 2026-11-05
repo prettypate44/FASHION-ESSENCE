@@ -115,5 +115,7 @@ app.get('/api/dashboard', (req, res) => {
   res.json({ totalDresses, totalInStock, totalSold, revenue, sales: db.sales });
 });
 
-const PORT = 5000;
-app.listen(PORT, () => console.log(`Backend running on http://localhost:${PORT}`));
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Backend running on port ${PORT}`);
+});
