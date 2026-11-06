@@ -17,12 +17,13 @@ const colors = ["Red", "Gold", "Blue", "Green", "Pink", "Wine", "Purple", "White
 
 let dresses = [];
 
-for (let i = 1; i <= 1500; i++) {
-  let b = base[(i - 1) % base.length];
-  let color = colors[(i - 1) % colors.length];
+// FIXED: Only 10, not 1500
+for (let i = 1; i <= 10; i++) {
+  let b = base[i - 1];
+  let color = colors[i - 1];
   dresses.push({
     id: i,
-    name: b.name + " " + color + " #" + i,
+    name: b.name + " " + color,
     price: b.price,
     photo: "",
     sizes: b.sizes.map(s => ({ size: s[0], total: s[1], sold: 0 }))
@@ -30,4 +31,4 @@ for (let i = 1; i <= 1500; i++) {
 }
 
 fs.writeFileSync('dresses.json', JSON.stringify({ dresses, sales: [] }, null, 2));
-console.log('DONE - Created 1500 dresses exactly like your example, IDs 1 to 1500');
+console.log('DONE - Created 10 dresses, IDs 1 to 10');
