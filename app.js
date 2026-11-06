@@ -1,5 +1,5 @@
 // FASHION ESSENCE - FIXED app.js
-const API = 'https://fashion-essence.onrender.com';
+const API = 'https://fashionessence1.onrender.com';
 const WHATSAPP_NUMBER = '2348033457117';
 let dresses = [];
 
