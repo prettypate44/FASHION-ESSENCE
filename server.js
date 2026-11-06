@@ -7,6 +7,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static(__dirname));
 
 const PORT = process.env.PORT || 5000;
 const FILE = path.join(__dirname, 'dresses.json');
@@ -32,9 +33,8 @@ function saveData(data) {
 }
 
 app.get('/', (req, res) => {
-  res.send('Fashion Essence Backend is ON - Go to /dresses to see dresses');
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
-
 app.get('/dresses', (req, res) => {
   let data = readData();
   res.json(data.dresses || []);
