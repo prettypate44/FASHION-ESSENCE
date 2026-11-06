@@ -2,7 +2,7 @@ const API = window.location.hostname === 'localhost' || window.location.hostname
   ? 'http://localhost:5000'
   : 'https://fashionessence1.onrender.com';
 
-const WHATSAPP_NUMBER = "2348033457117"; // CHANGE TO YOUR NUMBER
+const WHATSAPP_NUMBER = "2348033457117";
 
 let dresses = [];
 let sales = [];
@@ -131,7 +131,15 @@ function openDetail(id) {
       <select id="selectedSize-${d.id}">${d.sizes.map(s => `<option value="${s.size}">Size ${s.size} - ${getRemaining(s)} remaining</option>`).join('')}</select>
       <button onclick="markSold(${d.id})">Mark As Sold</button>
       <button onclick="restock(${d.id})">Restock +1</button>
+      <button style="background:#25D366" onclick="orderWhatsApp(${d.id})">Order on WhatsApp</button>
     </div>`;
+}
+
+function orderWhatsApp(id) {
+  let d = dresses.find(x => x.id == id);
+  let size = document.getElementById('selectedSize-' + id).value;
+  let msg = `Hello FASHION ESSENCE BY ENAMARA, I want to order ${d.name}, Size ${size}, ₦${d.price.toLocaleString()}`;
+  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
 }
 
 async function markSold(id) {
