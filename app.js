@@ -1,6 +1,6 @@
 // FASHION ESSENCE - FIXED app.js
 const API = 'https://fashion-essence.onrender.com';
-const WHATSAPP_NUMBER = '23408033457117'; // CHANGE TO YOUR NUMBER
+const WHATSAPP_NUMBER = '2348033457117';
 let dresses = [];
 
 function showBackendError(){

@@ -8,6 +8,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get('/', (req, res) => {
+  res.send('Fashion Essence Backend is ON - Go to /dresses to see dresses');
+});
+
+app.get('/dresses', (req, res) => {
+  res.json(dresses);
+});
+
 const DB_FILE = path.join(__dirname, 'dresses.json');
 
 // --- SIMPLE ADMIN LOGIN ---
