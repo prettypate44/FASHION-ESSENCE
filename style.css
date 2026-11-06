@@ -1,101 +1,17 @@
-*{
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
-
-body{
-margin:0;
-background:#fdf2f5,
-}
-header{
-background:#8B1E3F;
-color:white;
-padding:16px;
-text-align:center;
-}
-.container{
-padding:14px;
-max-width:480px;
-margin:auto;
-}
-
-.card{
-background:white;
-border-radius:12px;
-padding:14px;
-margin-bottom:12px;
-box-shadow:0 2px 8px rgba(0,0,0,.08);
-}
-
-.card img{
-width:100%;
-border-radius:10px;
-height:220px;
-object-fit:cover;
-background:#eee;
-}
-
-input,select,button{
-width:100%;
-padding:12px;
-margin:6px 0;
-border-radius:8px;
-border:1px solid #ddd;
-font-size:15px;
-}
-
-button{
-background:#8B1E3F;
-color:white;
-border:none;
-font-weight:bold;
-cursor:pointer;
-}
-button.green{
-background:#25D366;
-}
-
-button.grey{
-background:#eee;
-color:#333;
-}
-
-.hidden{
-display:none;
-}
-
-.tabs{
-display:flex;
-gap:8px;margin-bottom:12px;
-}
-
-.tabs button{
-background:white;
-color:#8B1E3F;
-border:1px solid #8B1E3F;
-}
-.tabs button.active{
-background:#8B1E3F;
-color:white;
-}
-
-.badge{
-display:inline-block;
-background:#ffeef2;
-color:#8B1E3F;
-padding:4px 10px;
-border-radius:20px;
-font-size:12px;
-margin:2px;
-}
-
-.qr{
-width:140px;
-height:140px;
-margin:10px auto;
-display:block;
-}
-
-.center{
-    text-align:center;
-}
+*{box-sizing:border-box;font-family:Arial,sans-serif}
+body{margin:0;background:#fdf2f5}
+header{background:#8B1E3F;color:white;padding:16px;text-align:center}
+.container{padding:14px;max-width:480px;margin:auto}
+.card{background:white;border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.card img{width:100%;border-radius:10px;height:220px;object-fit:cover;background:#eee}
+input,select,button{width:100%;padding:12px;margin:6px 0;border-radius:8px;border:1px solid #ddd;font-size:15px}
+button{background:#8B1E3F;color:white;border:none;font-weight:bold;cursor:pointer}
+button.green{background:#25D366}
+button.grey{background:#eee;color:#333}
+.hidden{display:none}
+.tabs{display:flex;gap:8px;margin-bottom:12px}
+.tabs button{background:white;color:#8B1E3F;border:1px solid #8B1E3F}
+.tabs button.active{background:#8B1E3F;color:white}
+.badge{display:inline-block;background:#ffeef2;color:#8B1E3F;padding:4px 10px;border-radius:20px;font-size:12px;margin:2px}
+.qr{width:140px;height:140px;margin:10px auto;display:block}
+.center{text-align:center}

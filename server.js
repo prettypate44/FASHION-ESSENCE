@@ -19,7 +19,6 @@ function readData() {
     }
     let raw = fs.readFileSync(FILE, 'utf8');
     let data = JSON.parse(raw);
-    // Handle both formats: [ ... ] or { dresses: [...] }
     if (Array.isArray(data)) return { dresses: data, sales: [] };
     return data;
   } catch (e) {
@@ -39,6 +38,24 @@ app.get('/', (req, res) => {
 app.get('/dresses', (req, res) => {
   let data = readData();
   res.json(data.dresses || []);
+});
+
+// *** ADDED - THIS WAS MISSING ***
+app.post('/dresses', (req, res) => {
+  let data = readData();
+  let newDress = {
+    id: Date.now(),
+    name: req.body.name,
+    price: Number(req.body.price) || 0,
+    photo: req.body.photo || '',
+    image: req.body.photo || '',
+    sizes: (req.body.sizes || []).map(s => ({ size: s.size, total: Number(s.total) || 0, sold: 0 }))
+  };
+  if (!newDress.name) return res.json({ error: 'Name required' });
+  data.dresses = data.dresses || [];
+  data.dresses.push(newDress);
+  saveData(data);
+  res.json({ success: true, dress: newDress });
 });
 
 app.get('/dresses/:id', (req, res) => {
