@@ -5,16 +5,38 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FASHION ESSENCE BY ENAMARA</title>
 <link rel="stylesheet" href="style.css">
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
 <body>
 <header><h1>FASHION ESSENCE BY ENAMARA</h1><p>Inventory + QR Code System</p></header>
 <div class="container">
   <div class="tabs">
     <button onclick="showTab('shop')" id="tabShop" class="active">Shop</button>
+    <button onclick="showTab('scan')" id="tabScan">📷 POS Scan</button>
     <button onclick="showTab('admin')" id="tabAdmin">Admin</button>
     <button onclick="showTab('dashboard')" id="tabDashboard">Dashboard</button>
   </div>
-  <div id="view-shop"><input id="search" placeholder="Search dress..." oninput="renderShop()"><div id="shop"></div></div>
+
+  <div id="view-shop">
+    <input id="search" placeholder="Search dress..." oninput="renderShop()">
+    <div class="best-title"><h3>🔥 Best Sellers</h3><span>Swipe →</span></div>
+    <div class="horizontal-row" id="bestSellers"></div>
+    <h3 style="padding:0 4px;">✨ New Arrivals</h3>
+    <div id="shop"></div>
+  </div>
+
+  <div id="view-scan" class="hidden">
+    <div class="card" style="text-align:center;">
+      <h3>📷 POS Scanner</h3>
+      <p style="font-size:13px;">Point camera at QR on dress tag to sell fast</p>
+      <div id="reader" style="width:100%;"></div>
+      <button onclick="startScan()">Start Scanner</button>
+      <button onclick="stopScan()" style="background:#eee;color:#333;">Stop Scanner</button>
+      <p id="scanResult" style="font-weight:bold;color:#8B1E3F;"></p>
+      <p style="font-size:12px;color:#666;">Allow camera when asked. Must use HTTPS link.</p>
+    </div>
+  </div>
+
   <div id="view-admin" class="hidden">
     <div class="card"><h3>Add Dress</h3>
       <input id="dressName" placeholder="Dress Name">
