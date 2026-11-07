@@ -34,14 +34,14 @@ function showTab(tab) {
 
 async function loadDresses() {
   try {
+    document.getElementById('shop').innerHTML = "<p>Loading dresses... please wait, waking up server (up to 50s)...</p>";
     let res = await fetch(API + '/dresses');
     dresses = await res.json();
     renderShop();
   } catch (e) {
-    document.getElementById('shopList').innerHTML = "<p>Cannot connect to backend. Is <b>node server.js</b> running?</p>";
+    document.getElementById('shop').innerHTML = "<p>Server is waking up... <b>Wait 50 seconds and refresh this page.</b></p><button onclick='loadDresses()'>Try Again</button>";
   }
 }
-
 function getRemaining(s) { return s.total - s.sold; }
 
 function renderShop() {
