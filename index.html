@@ -19,7 +19,9 @@
     <div class="card"><h3>Add Dress</h3>
       <input id="dressName" placeholder="Dress Name">
       <input id="dressPrice" type="number" placeholder="Price">
-      <input id="dressPhoto" placeholder="Photo Link">
+      <input id="dressPhoto" placeholder="Photo Link (optional)">
+      <input type="file" id="dressPhotoFile" accept="image/*" style="padding:10px; background:white; border-radius:8px;">
+      <img id="photoPreview" style="width:100%; max-height:200px; object-fit:cover; border-radius:8px; display:none; margin-top:5px;">
       <input class="sizeInput" placeholder="Size e.g. 10"><input class="qtyInput" type="number" placeholder="Qty e.g. 2">
       <input class="sizeInput" placeholder="Size e.g. 12"><input class="qtyInput" type="number" placeholder="Qty e.g. 2">
       <button onclick="addDress()">Add Dress</button>

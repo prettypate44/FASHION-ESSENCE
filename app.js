@@ -51,67 +51,15 @@ function renderShop() {
     let totalRem = d.sizes.reduce((a, s) => a + getRemaining(s), 0);
     let img = d.photo || "https://via.placeholder.com/400x220?text=" + encodeURIComponent(d.name);
     html += `<div class="card">
-      <img src="${img}" style="width:100%;border-radius:10px;height:220px;object-fit:cover">
+      <img src="${img}" onerror="this.src='https://via.placeholder.com/400x220?text=${encodeURIComponent(d.name)}'" style="width:100%;border-radius:10px;height:220px;object-fit:cover">
       <h3>${d.name}</h3>
       <p><b>₦${d.price.toLocaleString()}</b> | Remaining: ${totalRem}</p>
       <p>${d.sizes.map(s => `Size ${s.size}: ${getRemaining(s)} left`).join(' | ')}</p>
       <button onclick="openDetail(${d.id})">View / Sell</button>
     </div>`;
   });
-  if (!html) html = "<p>No dresses found.</p>";
-  document.getElementById('shopList').innerHTML = html;
+  document.getElementById('shop').innerHTML = html;
 }
-
-async function addDress() {
-  let name = document.getElementById('dressName').value.trim();
-  let price = parseInt(document.getElementById('dressPrice').value);
-  let photo = document.getElementById('dressPhoto').value.trim();
-  if (!name || !price) { alert("Enter Name and Price"); return; }
-  let sizes = [];
-  document.querySelectorAll('.sizeInput').forEach((inp, i) => {
-    let sz = inp.value.trim();
-    let qty = parseInt(document.querySelectorAll('.qtyInput')[i].value);
-    if (sz && qty) sizes.push({ size: sz, total: qty });
-  });
-  if (!sizes.length) { alert("Enter at least one size"); return; }
-
-  let res = await fetch(API + '/dresses', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, price, photo, sizes })
-  });
-  let data = await res.json();
-  if (data.success) {
-    alert("Dress added!");
-    document.getElementById('dressName').value = "";
-    document.getElementById('dressPrice').value = "";
-    document.getElementById('dressPhoto').value = "";
-    document.querySelectorAll('.sizeInput').forEach(e => e.value = "");
-    document.querySelectorAll('.qtyInput').forEach(e => e.value = "");
-    await loadDresses();
-    showTab('shop');
-  } else {
-    alert("Failed: " + (data.error || "Unknown"));
-  }
-}
-
-async function renderDashboard() {
-  try {
-    let res = await fetch(API + '/dashboard');
-    let d = await res.json();
-    document.getElementById('dashStats').innerHTML = `
-      <h3>Dashboard</h3>
-      <p>Total Dresses: <b>${d.totalDresses}</b></p>
-      <p>Total In Stock: <b>${d.totalInStock}</b></p>
-      <p>Total Sold: <b>${d.totalSold}</b></p>
-      <p>Total Revenue: <b>₦${d.revenue.toLocaleString()}</b></p>
-      <h4>Sales History</h4>
-      <p>${d.sales && d.sales.length ? d.sales.map(s => `${s.dressName} Size ${s.size} - ₦${s.price}<br>`).join('') : 'No sales yet'}</p>`;
-  } catch (e) {
-    document.getElementById('dashStats').innerHTML = "Cannot load dashboard - is server running?";
-  }
-}
-
 function openDetail(id) {
   let d = dresses.find(x => x.id == id);
   if (!d) return;
@@ -165,3 +113,62 @@ async function restock(id) {
 }
 
 loadDresses();
+
+// ===== ADMIN - ADD DRESS WITH PHOTO UPLOAD =====
+
+function addSizeRow() {
+  let div = document.createElement('div');
+  div.innerHTML = `<input placeholder="Size e.g 10" class="sizeInput"> <input placeholder="Qty" type="number" class="qtyInput">`;
+  document.getElementById('sizeList').appendChild(div);
+}
+
+async function addDress() {
+  let name = document.getElementById('dressName').value;
+  let price = Number(document.getElementById('dressPrice').value);
+  let photo = document.getElementById('dressPhoto').value;
+
+  // Photo Upload - if user picked a file, use it
+  const fileInput = document.getElementById('dressPhotoFile');
+  if (fileInput && fileInput.files[0]) {
+    photo = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.readAsDataURL(fileInput.files[0]);
+    });
+  }
+
+  let sizeEls = document.querySelectorAll('.sizeInput');
+  let qtyEls = document.querySelectorAll('.qtyInput');
+  let sizes = [];
+  for (let i = 0; i < sizeEls.length; i++) {
+    if (sizeEls[i].value) sizes.push({ size: sizeEls[i].value, total: Number(qtyEls[i].value || 0), sold: 0 });
+  }
+
+  if (!name || !price || sizes.length === 0) {
+    alert('Enter at least one size');
+    return;
+  }
+
+  await fetch(API + '/dresses', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, price, photo, sizes })
+  });
+
+  alert('Dress added!');
+  document.getElementById('dressName').value = '';
+  document.getElementById('dressPrice').value = '';
+  document.getElementById('dressPhoto').value = '';
+  if (fileInput) fileInput.value = '';
+  await loadDresses();
+  showTab('shop');
+}
+
+// ===== DASHBOARD =====
+function renderDashboard() {
+  let totalDresses = dresses.length;
+  let totalSold = dresses.reduce((a, d) => a + d.sizes.reduce((b, s) => b + s.sold, 0), 0);
+  let totalRevenue = dresses.reduce((a, d) => a + d.sizes.reduce((b, s) => b + (s.sold * d.price), 0), 0);
+  let el = document.getElementById('dashboardContent');
+  if (el) el.innerHTML = `<p><b>Total Dresses:</b> ${totalDresses}</p><p><b>Total Sold:</b> ${totalSold}</p><p><b>Total Revenue:</b> ₦${totalRevenue.toLocaleString()}</p>`;
+}
