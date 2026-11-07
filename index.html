@@ -14,7 +14,7 @@
     <button onclick="showTab('admin')" id="tabAdmin">Admin</button>
     <button onclick="showTab('dashboard')" id="tabDashboard">Dashboard</button>
   </div>
-  <div id="view-shop"><input id="search" placeholder="Search dress..." oninput="renderShop()"><div id="shopList"></div></div>
+  <div id="view-shop"><input id="search" placeholder="Search dress..." oninput="renderShop()"><div id="shop"></div></div>
   <div id="view-admin" class="hidden">
     <div class="card"><h3>Add Dress</h3>
       <input id="dressName" placeholder="Dress Name">
@@ -22,12 +22,15 @@
       <input id="dressPhoto" placeholder="Photo Link (optional)">
       <input type="file" id="dressPhotoFile" accept="image/*" style="padding:10px; background:white; border-radius:8px;">
       <img id="photoPreview" style="width:100%; max-height:200px; object-fit:cover; border-radius:8px; display:none; margin-top:5px;">
-      <input class="sizeInput" placeholder="Size e.g. 10"><input class="qtyInput" type="number" placeholder="Qty e.g. 2">
-      <input class="sizeInput" placeholder="Size e.g. 12"><input class="qtyInput" type="number" placeholder="Qty e.g. 2">
+      <div id="sizeList">
+        <input class="sizeInput" placeholder="Size e.g. 10"><input class="qtyInput" type="number" placeholder="Qty e.g. 2">
+        <input class="sizeInput" placeholder="Size e.g. 12"><input class="qtyInput" type="number" placeholder="Qty e.g. 2">
+      </div>
+      <button onclick="addSizeRow()">+ Add Size</button><br><br>
       <button onclick="addDress()">Add Dress</button>
     </div>
   </div>
-  <div id="view-dashboard" class="hidden"><div class="card" id="dashStats"></div></div>
+  <div id="view-dashboard" class="hidden"><div class="card" id="dashboardContent"></div></div>
   <div id="view-detail" class="hidden"></div>
 </div>
 <script src="app.js"></script>
