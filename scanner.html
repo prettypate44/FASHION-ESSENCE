@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FASHION ESSENCE BY ENAMARA</title>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box;font-family:Arial,sans-serif}
+body{margin:0;background:#fdf2f5}
+header{background:#8B1E3F;color:white;padding:16px;text-align:center}
+header h1{font-size:18px;margin:0}
+header p{font-size:12px;margin:4px 0 0;opacity:.9}
+.container{padding:14px;max-width:480px;margin:auto}
+.card{background:white;border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.card img{width:100%;border-radius:10px;height:220px;object-fit:cover;background:#eee}
+input,select,button{width:100%;padding:12px;margin:6px 0;border-radius:8px;border:1px solid #ddd;font-size:15px}
+button{background:#8B1E3F;color:white;border:none;font-weight:bold;cursor:pointer}
+button.green{background:#25D366}
+button.grey{background:#eee;color:#333}
+.size-row{display:flex;gap:8px}
+.size-row input{flex:1}
+.badge{display:inline-block;background:#ffeef2;color:#8B1E3F;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:bold;margin:2px}
+.tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.tabs button{background:white;color:#8B1E3F;border:1px solid #8B1E3F;padding:10px 6px;font-size:13px}
+.tabs button.active{background:#8B1E3F;color:white}
+.hidden{display:none}
+.qr{width:140px;height:140px;margin:10px auto;display:block}
+.center{text-align:center}
+
+/* HORIZONTAL BEST SELLERS */
+.best-title{display:flex;justify-content:space-between;align-items:center;padding:6px 4px 0}
+.best-title h3{margin:0;font-size:18px;color:#8B1E3F}
+.horizontal-row{display:flex;gap:12px;overflow-x:auto;padding:12px 4px}
+.horizontal-row::-webkit-scrollbar{display:none}
+.best-card{flex:0 0 160px;background:white;border-radius:12px;padding:8px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.best-card img{height:180px}
+.best-card h4{font-size:13px;margin:6px 0 2px}
+.best-card p{font-size:13px;margin:0;font-weight:bold;color:#8B1E3F}
+.best-card small{font-size:11px;color:#888}
+#reader video{width:100%!important;border-radius:12px}
+</style>
+</head>
+<body>
+<header><h1>FASHION ESSENCE BY ENAMARA</h1><p>Shop + POS Scanner + Dashboard</p></header>
+<div class="container">
+<div class="tabs">
+<button id="tabShop" class="active" onclick="showTab('shop')">Shop</button>
+<button id="tabScan" onclick="showTab('scan')">📷 POS Scan</button>
+<button id="tabAdmin" onclick="showTab('admin')">Admin</button>
+<button id="tabDashboard" onclick="showTab('dashboard')">Dashboard</button>
+</div>
+
+<div id="view-shop">
+<input id="search" placeholder="Search dress name..." oninput="renderShop()">
+<div class="best-title"><h3>🔥 Best Sellers</h3><span>Swipe →</span></div>
+<div class="horizontal-row" id="bestSellers"></div>
+<h3 style="padding:0 4px;">✨ New Arrivals</h3>
+<div id="shopList"></div>
+</div>
+
+<div id="view-scan" class="hidden">
+<div class="card center">
+<h3>📷 POS Scanner</h3>
+<p style="font-size:13px;">Point camera at QR on dress tag to sell fast</p>
+<div id="reader"></div>
+<button onclick="startScan()">Start Scanner</button>
+<button class="grey" onclick="stopScan()">Stop Scanner</button>
+<p id="scanResult" style="font-weight:bold;color:#8B1E3F;"></p>
+<p style="font-size:12px;color:#666;">Tip: Allow camera permission when asked. Use back camera in shop.</p>
+</div>
+</div>
+
+<div id="view-admin" class="hidden">
+<div class="card">
+<h3>Add New Dress</h3>
+<input id="dressName" placeholder="Dress Name - e.g. Aso Oke Gown">
+<input id="dressPrice" type="number" placeholder="Price - e.g. 85000">
+<input id="dressPhoto" placeholder="Photo Link">
+<label><b>Sizes and Quantity</b></label>
+<div class="size-row"><input class="sizeInput" placeholder="Size 10"><input class="qtyInput" type="number" placeholder="Qty 2"></div>
+<div class="size-row"><input class="sizeInput" placeholder="Size 12"><input class="qtyInput" type="number" placeholder="Qty 2"></div>
+<div class="size-row"><input class="sizeInput" placeholder="Size 14"><input class="qtyInput" type="number" placeholder="Qty 1"></div>
+<button onclick="addDress()">Add Dress + Generate QR</button>
+</div>
+</div>
+
+<div id="view-dashboard" class="hidden">
+<div class="card" id="dashStats"></div>
+<div class="card"><h3>Sales History</h3><div id="salesList"></div></div>
+</div>
+
+<div id="view-detail" class="hidden"></div>
+</div>
+
+<script>
+const WHATSAPP_NUMBER = "2348033457117";
+let dresses = JSON.parse(localStorage.getItem('enamara_dresses') || '[]');
+let sales = JSON.parse(localStorage.getItem('enamara_sales') || '[]');
+if(dresses.length===0){
+  dresses=[
+    {id:1,name:"Aso Oke Gown",price:85000,photo:"",sizes:[{size:"10",total:2,sold:1},{size:"12",total:2,sold:0}]},
+    {id:2,name:"Ankara Peplum",price:45000,photo:"",sizes:[{size:"10",total:3,sold:1},{size:"12",total:2,sold:2}]}
+  ]; save();
+}
+function save(){localStorage.setItem('enamara_dresses',JSON.stringify(dresses));localStorage.setItem('enamara_sales',JSON.stringify(sales));}
+function getRemaining(s){return s.total - s.sold;}
+function showTab(tab){
+  ['view-shop','view-admin','view-dashboard','view-detail','view-scan'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  ['tabShop','tabScan','tabAdmin','tabDashboard'].forEach(id=>document.getElementById(id).classList.remove('active'));
+  if(tab==='shop'){document.getElementById('view-shop').classList.remove('hidden');document.getElementById('tabShop').classList.add('active');renderShop();}
+  if(tab==='scan'){document.getElementById('view-scan').classList.remove('hidden');document.getElementById('tabScan').classList.add('active');}
+  if(tab==='admin'){document.getElementById('view-admin').classList.remove('hidden');document.getElementById('tabAdmin').classList.add('active');}
+  if(tab==='dashboard'){document.getElementById('view-dashboard').classList.remove('hidden');document.getElementById('tabDashboard').classList.add('active');renderDashboard();}
+}
+function renderBestSellers(){
+  let sorted=[...dresses].sort((a,b)=>{
+    let sa=a.sizes.reduce((s,x)=>s+x.sold,0), sb=b.sizes.reduce((s,x)=>s+x.sold,0); return sb-sa;
+  }).slice(0,5);
+  document.getElementById('bestSellers').innerHTML=sorted.map(d=>{
+    let img=d.photo||"https://via.placeholder.com/300x300?text="+encodeURIComponent(d.name);
+    let sold=d.sizes.reduce((s,x)=>s+x.sold,0);
+    return `<div class="best-card" onclick="openDetail(${d.id})"><img src="${img}"><h4>${d.name}</h4><p>₦${d.price.toLocaleString()}</p><small>⭐ 4.8 • ${sold} sold</small></div>`;
+  }).join('');
+}
+function addDress(){
+  let name=document.getElementById('dressName').value.trim();
+  let price=parseInt(document.getElementById('dressPrice').value);
+  let photo=document.getElementById('dressPhoto').value.trim();
+  if(!name||!price){alert("Enter Name and Price");return;}
+  let sizes=[]; document.querySelectorAll('.sizeInput').forEach((inp,i)=>{
+    let sz=inp.value.trim(); let qty=parseInt(document.querySelectorAll('.qtyInput')[i].value);
+    if(sz&&qty) sizes.push({size:sz,total:qty,sold:0});
+  });
+  if(!sizes.length){alert("Enter at least one size");return;}
+  dresses.push({id:Date.now(),name,price,photo,sizes}); save();
+  alert("Dress added!"); showTab('shop');
+}
+function renderShop(){
+  renderBestSellers();
+  let q=(document.getElementById('search').value||"").toLowerCase();
+  let html="";
+  dresses.filter(d=>d.name.toLowerCase().includes(q)).forEach(d=>{
+    let totalRem=d.sizes.reduce((a,s)=>a+getRemaining(s),0);
+    let badges=d.sizes.map(s=>`<span class="badge">Size ${s.size}: ${getRemaining(s)} left</span>`).join(" ");
+    let img=d.photo||"https://via.placeholder.com/400x220?text="+encodeURIComponent(d.name);
+    html+=`<div class="card"><img src="${img}"><h3>${d.name}</h3><p><b>₦${d.price.toLocaleString()}</b> | Remaining: ${totalRem}</p><div>${badges}</div><button onclick="openDetail(${d.id})">View / Scan / Sell</button></div>`;
+  });
+  document.getElementById('shopList').innerHTML=html||"<p class='center'>No dresses yet</p>";
+}
+function openDetail(id){
+  let d=dresses.find(x=>x.id===id); if(!d) return;
+  ['view-shop','view-admin','view-dashboard','view-scan'].forEach(v=>document.getElementById(v).classList.add('hidden'));
+  let detail=document.getElementById('view-detail'); detail.classList.remove('hidden');
+  let qrLink=location.href.split('#')[0]+"#dress-"+d.id;
+  let qrImg="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+encodeURIComponent(qrLink);
+  let sizeOptions=d.sizes.map(s=>`<option value="${s.size}">Size ${s.size} - ${getRemaining(s)} remaining</option>`).join("");
+  let img=d.photo||"https://via.placeholder.com/400x220?text="+encodeURIComponent(d.name);
+  detail.innerHTML=`<button class="grey" onclick="showTab('shop')">← Back</button><div class="card"><img src="${img}"><h2>${d.name}</h2><p><b>₦${d.price.toLocaleString()}</b></p><p>${d.sizes.map(s=>`Size ${s.size}: Total ${s.total} | Sold ${s.sold} | <b>Remaining ${getRemaining(s)}</b><br>`).join("")}</p><div class="center"><p><b>QR For Tag - Print This</b></p><img class="qr" src="${qrImg}"></div><select id="selectedSize-${d.id}">${sizeOptions}</select><button class="green" onclick="orderWhatsApp(${d.id})">Order on WhatsApp</button><button onclick="markSold(${d.id})">POS: Mark As Sold</button><button class="grey" onclick="restock(${d.id})">Restock +1</button><button class="grey" onclick="deleteDress(${d.id})" style="color:red">Delete</button></div>`;
+}
+function orderWhatsApp(id){
+  let d=dresses.find(x=>x.id===id); let size=document.getElementById('selectedSize-'+id).value;
+  window.open(`https://wa.me/${WHATSAPP_2348033457117}?text=${encodeURIComponent(`Hello FASHION ESSENCE, I want ${d.name}, Size ${size}, ₦${d.price.toLocaleString()}`)}`,"_blank");
+}
+function markSold(id){
+  let d=dresses.find(x=>x.id===id); let size=document.getElementById('selectedSize-'+id).value;
+  let s=d.sizes.find(x=>x.size===size); if(getRemaining(s)<=0){alert("Out of stock!");return;}
+  s.sold++; sales.push({dress:d.name,size,price:d.price,date:new Date().toLocaleString(),channel:"POS Scan"}); save(); openDetail(id); alert(`Sold! ${d.name} Size ${size}`);
+}
+function restock(id){let d=dresses.find(x=>x.id===id);let size=document.getElementById('selectedSize-'+id).value;let s=d.sizes.find(x=>x.size===size);s.total++;save();openDetail(id);}
+function deleteDress(id){if(!confirm("Delete?"))return; dresses=dresses.filter(x=>x.id!==id);save();showTab('shop');}
+function renderDashboard(){
+  let totalRem=dresses.reduce((a,d)=>a+d.sizes.reduce((b,s)=>b+getRemaining(s),0),0);
+  let totalSold=dresses.reduce((a,d)=>a+d.sizes.reduce((b,s)=>b+s.sold,0),0);
+  let revenue=sales.reduce((a,s)=>a+s.price,0);
+  document.getElementById('dashStats').innerHTML=`<h3>Dashboard</h3><p>Total Dresses: <b>${dresses.length}</b></p><p>In Stock: <b>${totalRem}</b></p><p>Sold: <b>${totalSold}</b></p><p>Revenue: <b>₦${revenue.toLocaleString()}</b></p>`;
+  document.getElementById('salesList').innerHTML=sales.length?sales.map(s=>`${s.date} - ${s.dress} Size ${s.size} - ₦${s.price.toLocaleString()} (${s.channel})<br>`).join(""):"No sales yet";
+}
+// POS SCANNER
+let html5QrCode=null;
+function startScan(){
+  document.getElementById('scanResult').innerText="Scanning... point at QR";
+  html5QrCode=new Html5Qrcode("reader");
+  html5QrCode.start({facingMode:"environment"},{fps:10,qrbox:250},(decodedText)=>{
+    document.getElementById('scanResult').innerText="Found! Opening dress...";
+    stopScan();
+    let id=decodedText.split('dress-')[1];
+    if(id) openDetail(parseInt(id)); else alert("Scanned: "+decodedText);
+  }).catch(err=>alert("Camera error: "+err+" - Allow camera permission and use HTTPS"));
+}
+function stopScan(){ if(html5QrCode){ html5QrCode.stop().then(()=>html5QrCode.clear()).catch(()=>{}); } }
+renderShop();
+</script>
+</body>
+</html>
