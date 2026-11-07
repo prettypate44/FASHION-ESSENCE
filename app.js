@@ -1,35 +1,12 @@
-// Shrink photo before uploading - so it never breaks the site
-function compressImage(file) {
-  return new Promise((resolve) => {
-    let reader = new FileReader();
-    reader.onload = (e) => {
-      let img = new Image();
-      img.onload = () => {
-        let canvas = document.createElement('canvas');
-        let maxWidth = 800; // Never bigger than 800px
-        let scale = Math.min(1, maxWidth / img.width);
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
-        let ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        // Quality 0.7 = small file but still clear
-        resolve(canvas.toDataURL('image/jpeg', 0.7));
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-
 const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:5000'
   : 'https://fashionessence1.onrender.com';
 
 const WHATSAPP_NUMBER = "2348033457117";
+const CLOUD_NAME = "yjrwajmb";
+const UPLOAD_PRESET = "fashionessence";
 
 let dresses = [];
-let sales = [];
 
 function showTab(tab) {
   document.getElementById('view-shop').classList.add('hidden');
@@ -66,6 +43,7 @@ async function loadDresses() {
     document.getElementById('shop').innerHTML = "<p>Server is waking up... <b>Wait 50 seconds and refresh this page.</b></p><button onclick='loadDresses()'>Try Again</button>";
   }
 }
+
 function getRemaining(s) { return s.total - s.sold; }
 
 function renderShop() {
@@ -84,6 +62,7 @@ function renderShop() {
   });
   document.getElementById('shop').innerHTML = html;
 }
+
 function openDetail(id) {
   let d = dresses.find(x => x.id == id);
   if (!d) return;
@@ -136,9 +115,7 @@ async function restock(id) {
   openDetail(id);
 }
 
-loadDresses();
-
-// ===== ADMIN - ADD DRESS WITH PHOTO UPLOAD =====
+// ===== ADMIN - ADD DRESS WITH CLOUDINARY =====
 
 function addSizeRow() {
   let div = document.createElement('div');
@@ -146,44 +123,31 @@ function addSizeRow() {
   document.getElementById('sizeList').appendChild(div);
 }
 
+async function uploadToCloudinary(file) {
+  let formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', UPLOAD_PRESET);
+  let res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+    method: 'POST',
+    body: formData
+  });
+  let data = await res.json();
+  return data.secure_url;
+}
+
 async function addDress() {
   let name = document.getElementById('dressName').value;
   let price = Number(document.getElementById('dressPrice').value);
-  document.getElementById('adminForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  let fileInput = document.getElementById('photoFile'); // your Choose File input
+
+  // Photo - try both input IDs, use Cloudinary
   let photo = "";
-  
-  if (fileInput.files[0]) {
-    // This will shrink it automatically!
-    photo = await compressImage(fileInput.files[0]);
-    alert("Photo compressed! Now saving...");
-  }
-
-  let newDress = {
-    name: document.getElementById('dressName').value,
-    price: document.getElementById('dressPrice').value,
-    photo: photo,
-    sizes: [{ size: "10", total: 2, sold: 0 }]
-  };
-
-  await fetch(API + '/dresses', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(newDress)
-  });
-  alert("Dress added!");
-  loadDresses();
-});
-
-  // Photo Upload - if user picked a file, use it
-  const fileInput = document.getElementById('dressPhotoFile');
+  let fileInput = document.getElementById('dressPhotoFile') || document.getElementById('photoFile');
   if (fileInput && fileInput.files[0]) {
-    photo = await new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.readAsDataURL(fileInput.files[0]);
-    });
+    alert("Uploading photo to Cloudinary... please wait");
+    photo = await uploadToCloudinary(fileInput.files[0]);
+  } else {
+    let linkInput = document.getElementById('dressPhoto');
+    if (linkInput && linkInput.value) photo = linkInput.value;
   }
 
   let sizeEls = document.querySelectorAll('.sizeInput');
@@ -204,58 +168,24 @@ async function addDress() {
     body: JSON.stringify({ name, price, photo, sizes })
   });
 
-  alert('Dress added!');
+  alert('Dress added with Cloudinary!');
   document.getElementById('dressName').value = '';
   document.getElementById('dressPrice').value = '';
-  document.getElementById('dressPhoto').value = '';
+  if (document.getElementById('dressPhoto')) document.getElementById('dressPhoto').value = '';
   if (fileInput) fileInput.value = '';
   await loadDresses();
   showTab('shop');
 }
 
-// Cloudinary for Fashion Essence - 1500 dresses
-const CLOUD_NAME = "yjrwajmb";
-const UPLOAD_PRESET = "fashionessence";
-
-async function uploadToCloudinary(file) {
-  let formData = new FormData();
-  formData.append('file', file);
-  formData.append('upload_preset', UPLOAD_PRESET);
-
-  let res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
-    method: 'POST',
-    body: formData
+// Connect Admin Form ONCE - not inside addDress
+let adminForm = document.getElementById('adminForm');
+if (adminForm) {
+  adminForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    addDress();
   });
-  let data = await res.json();
-  return data.secure_url;
 }
 
-// Your Admin Form - Choose File now goes to Cloudinary
-document.getElementById('adminForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  let fileInput = document.getElementById('photoFile');
-  let photo = "";
-
-  if (fileInput.files[0]) {
-    alert("Uploading photo to Cloudinary... please wait");
-    photo = await uploadToCloudinary(fileInput.files[0]);
-  }
-
-  let newDress = {
-    name: document.getElementById('dressName').value,
-    price: document.getElementById('dressPrice').value,
-    photo: photo,
-    sizes: [{ size: "10", total: 2, sold: 0 }]
-  };
-
-  await fetch(API + '/dresses', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(newDress)
-  });
-  alert("Dress added with Cloudinary photo!");
-  loadDresses();
-});
 // ===== DASHBOARD =====
 function renderDashboard() {
   let totalDresses = dresses.length;
@@ -264,3 +194,5 @@ function renderDashboard() {
   let el = document.getElementById('dashboardContent');
   if (el) el.innerHTML = `<p><b>Total Dresses:</b> ${totalDresses}</p><p><b>Total Sold:</b> ${totalSold}</p><p><b>Total Revenue:</b> ₦${totalRevenue.toLocaleString()}</p>`;
 }
+
+loadDresses();
